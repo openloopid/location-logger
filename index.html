@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📍 Track & Log Location</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #f2f2f2; padding: 40px; }
+    button {
+      padding: 15px 30px; font-size: 1.2em;
+      background: #007BFF; color: #fff;
+      border: none; border-radius: 10px; cursor: pointer;
+    }
+    button:hover { background: #0056b3; }
+    #output { margin-top: 20px; font-size: 1em; }
+  </style>
+</head>
+<body>
+  <h2>📍 Share Your Location (Ethically)</h2>
+  <p>Click the button to share your location — we log it securely for demo purposes only.</p>
+  <button onclick="getLocation()">Share My Location</button>
+  <div id="output"></div>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbylgvnZT8zsOS5Ip8ahkKQSyC-RMIcn-d4F6p97x-mlypzsUSG8f7XZ8Ni2DpCsjvSZKg/exec"; // 👈 Paste your Web App URL here
+
+    function getLocation() {
+      const output = document.getElementById("output");
+
+      if (navigator.geolocation) {
+        output.innerHTML = "Requesting location...";
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const agent = navigator.userAgent;
+
+          const data = {
+            latitude: lat,
+            longitude: lon,
+            userAgent: agent
+          };
+
+          try {
+            const res = await fetch(scriptURL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+              output.innerHTML = `
+                ✅ Location logged successfully!<br>
+                <a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank">
+                  View on Google Maps
+                </a>
+              `;
+            } else {
+              output.innerHTML = "❌ Failed to log location.";
+            }
+          } catch (err) {
+            output.innerHTML = "⚠️ Error sending data.";
+            console.error(err);
+          }
+
+        }, (error) => {
+          output.innerHTML = "❌ Location access denied.";
+        });
+      } else {
+        output.innerHTML = "Geolocation is not supported by this browser.";
+      }
+    }
+  </script>
+</body>
+</html>
